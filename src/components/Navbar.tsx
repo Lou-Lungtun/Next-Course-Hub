@@ -1,0 +1,4 @@
+import Link from "next/link";
+export default function Navbar() {
+  return <nav className="navbar" aria-label="เมนูหลัก"><Link className="siteLogo" href="/">Course Hub</Link><ul className="navList"><li><Link className="navLink" href="/">หน้าแรก</Link></li><li><Link className="navLink" href="/courses">รายวิชา</Link></li><li><Link className="navLink" href="/about">เกี่ยวกับ</Link></li></ul></nav>;
+}
