@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แนวทางนำเสนอหน้า Favorite Bands</title>
+  <style>
+    body { max-width: 980px; margin: 36px auto; padding: 0 28px 70px; color: #1e293b; font-family: "Leelawadee UI", Arial, sans-serif; font-size: 17px; line-height: 1.75; }
+    h1 { color: #0f172a; border-bottom: 4px solid #2563eb; padding-bottom: 14px; }
+    h2 { margin-top: 42px; color: #1d4ed8; border-bottom: 1px solid #bfdbfe; padding-bottom: 7px; }
+    h3 { margin-top: 28px; color: #334155; }
+    code, pre { font-family: Consolas, monospace; }
+    code { padding: 2px 5px; color: #9f1239; background: #fff1f2; border-radius: 4px; }
+    pre { overflow-x: auto; padding: 18px; color: #e2e8f0; font-size: 14px; line-height: 1.6; background: #0f172a; border-radius: 10px; }
+    table { width: 100%; margin: 14px 0 26px; border-collapse: collapse; }
+    th, td { padding: 11px 13px; text-align: left; vertical-align: top; border: 1px solid #cbd5e1; }
+    th { color: white; background: #1e40af; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .script { padding: 18px 21px; background: #eff6ff; border-left: 5px solid #2563eb; border-radius: 8px; }
+    .tip { padding: 15px 18px; background: #fefce8; border-left: 5px solid #eab308; border-radius: 8px; }
+    .flow { padding: 18px; text-align: center; font-weight: 700; background: #ecfdf5; border: 1px solid #86efac; border-radius: 10px; }
+    .answer { color: #166534; font-weight: 700; }
+    @media print { body { margin: 0 auto; } pre { white-space: pre-wrap; } }
+  </style>
+</head>
+<body>
+  <h1>คู่มือซ้อมอธิบายหน้า “วงดนตรีที่ชื่นชอบ”</h1>
+  <p>ใช้เอกสารนี้เป็นแนวทางในการนำเสนอ ไม่จำเป็นต้องท่องทุกคำ ควรจำลำดับการทำงานและอธิบายด้วยคำพูดของตัวเอง</p>
+
+  <h2>1. เริ่มนำเสนออย่างไร</h2>
+  <div class="script">
+    “งานนี้ผมสร้างหน้าเว็บแสดงวงดนตรีที่ชื่นชอบ โดยใช้แนวคิด Component-based UI ใน Next.js ครับ ผมแยกงานออกเป็น 4 ส่วน คือ Type สำหรับกำหนดโครงสร้างข้อมูล, Data สำหรับเก็บข้อมูลวงดนตรี, Page สำหรับวนข้อมูลทั้งหมด และ BandCard สำหรับแสดงข้อมูลทีละวง นอกจากนี้ยังใช้ map ซ้อนกันเพื่อแสดงทั้งวงดนตรีและสมาชิกครับ”
+  </div>
+
+  <p>หลังพูดภาพรวมแล้ว ให้เปิดหน้า <code>/bands</code> ให้อาจารย์เห็นผลลัพธ์ จากนั้นจึงเปิดโค้ดตามลำดับต่อไปนี้</p>
+
+  <div class="flow">1. band.ts → 2. bandsdata.ts → 3. bands/page.tsx → 4. BandCard.tsx → 5. globals.css</div>
+
+  <h2>2. ขั้นที่หนึ่ง: อธิบาย Type</h2>
+  <p>เปิดไฟล์ <code>src/types/band.ts</code></p>
+
+  <div class="script">
+    “ผมเริ่มจากสร้าง Type ก่อน เพื่อกำหนดว่าข้อมูลสมาชิกและวงดนตรีต้องมีอะไรบ้าง Type Member มี id, name และ role ส่วน Type Band มี id, name, genre, image และ members โดย members เป็น Array ของ Member ครับ”
+  </div>
+
+  <pre>export type Member = {
+  id: number;
+  name: string;
+  role: string;
+};
+
+export type Band = {
+  id: number;
+  name: string;
+  genre: string;
+  image?: string;
+  members: Member[];
+};</pre>
+
+  <p>ประเด็นที่ควรอธิบาย:</p>
+  <ul>
+    <li><code>export</code> ทำให้ไฟล์อื่น import Type นี้ไปใช้ได้</li>
+    <li><code>string</code> คือข้อความ และ <code>number</code> คือตัวเลข</li>
+    <li><code>image?</code> มีเครื่องหมายคำถาม หมายถึงไม่ใส่รูปก็ได้</li>
+    <li><code>Member[]</code> หมายถึง Array ที่เก็บสมาชิกหลายคน</li>
+    <li>TypeScript จะแจ้ง error หากข้อมูลขาด property สำคัญหรือใส่ชนิดผิด</li>
+  </ul>
+
+  <h2>3. ขั้นที่สอง: อธิบายการแยกข้อมูล</h2>
+  <p>เปิดไฟล์ <code>src/data/bandsdata.ts</code></p>
+
+  <div class="script">
+    “ต่อมาผมแยกข้อมูลจำลองไว้ในไฟล์ bandsdata.ts ไม่ได้เขียนข้อมูลไว้ใน Component ทำให้เพิ่ม ลบ หรือแก้ข้อมูลวงดนตรีได้ง่าย และ Component มีหน้าที่แสดงผลเพียงอย่างเดียวครับ”
+  </div>
+
+  <pre>import type { Band } from "@/types/band";
+
+export const bands: Band[] = [
+  {
+    id: 1,
+    name: "Dept",
+    genre: "Synth-pop",
+    image: "/images/bands/Dept.jpg",
+    members: [
+      { id: 1, name: "ชื่อสมาชิก", role: "หน้าที่" },
+    ],
+  },
+];</pre>
+
+  <p>ประเด็นที่ควรอธิบาย:</p>
+  <ul>
+    <li><code>import type</code> นำ Band มาใช้ตรวจข้อมูล ไม่ได้สร้างสิ่งที่แสดงบนหน้าเว็บ</li>
+    <li><code>bands: Band[]</code> ระบุว่า Array นี้ต้องเก็บข้อมูลตามโครงสร้าง Band</li>
+    <li><code>export const</code> ทำให้หน้าอื่นนำ Array bands ไปใช้ได้</li>
+    <li>สร้างข้อมูลครบอย่างน้อย 3 วงตามโจทย์</li>
+    <li>แต่ละวงมี Array <code>members</code> ของตัวเอง</li>
+    <li>id ของวงไม่ซ้ำกัน ส่วน id สมาชิกสามารถเริ่มใหม่ในแต่ละวงได้ เพราะแต่ละวงมีรายการสมาชิกคนละชุด</li>
+  </ul>
+
+  <h2>4. ขั้นที่สาม: อธิบาย Parent Component และ map แรก</h2>
+  <p>เปิดไฟล์ <code>src/app/bands/page.tsx</code></p>
+
+  <div class="script">
+    “ไฟล์ page.tsx เป็น Parent Component ของหน้า /bands ครับ หน้านี้ import ข้อมูล bands และ Component BandCard จากนั้นใช้ bands.map วนข้อมูลทุกวง แล้วสร้าง BandCard หนึ่งใบต่อหนึ่งวง พร้อมส่งข้อมูลผ่าน prop ชื่อ band ครับ”
+  </div>
+
+  <pre>{bands.map((band) => (
+  &lt;BandCard key={band.id} band={band} /&gt;
+))}</pre>
+
+  <p>อธิบายโค้ดทีละส่วน:</p>
+  <ul>
+    <li><code>bands</code> คือ Array วงดนตรีทั้งหมด</li>
+    <li><code>.map()</code> วนสมาชิกทุกตัวใน Array และสร้าง JSX กลับมา</li>
+    <li><code>band</code> คือข้อมูลวงปัจจุบันในแต่ละรอบ</li>
+    <li><code>&lt;BandCard /&gt;</code> สร้าง Component หนึ่งใบ</li>
+    <li><code>key={band.id}</code> ช่วยให้ React ระบุแต่ละรายการได้</li>
+    <li><code>band={band}</code> ส่ง Object วงปัจจุบันให้ Child Component ผ่าน Props</li>
+  </ul>
+
+  <h2>5. ขั้นที่สี่: อธิบาย Child Component</h2>
+  <p>เปิดไฟล์ <code>src/components/BandCard.tsx</code></p>
+
+  <div class="script">
+    “BandCard เป็น Child Component ที่รับข้อมูลหนึ่งวงผ่าน Props ครับ ผมกำหนด Props Type ไว้ว่า band ต้องเป็น Type Band จากนั้นนำข้อมูลมาแสดงเป็นรูป ชื่อวง แนวเพลง และรายชื่อสมาชิก”
+  </div>
+
+  <pre>type BandCardProps = {
+  band: Band;
+};
+
+export default function BandCard({ band }: BandCardProps) {</pre>
+
+  <p>สิ่งที่ควรอธิบาย:</p>
+  <ul>
+    <li><code>BandCardProps</code> เป็นกติกาของ Props</li>
+    <li><code>{ band }</code> คือ destructuring ดึง band ออกจาก Props</li>
+    <li><code>: BandCardProps</code> ให้ TypeScript ตรวจ Props ที่ Component รับ</li>
+    <li>Component เดียวสามารถนำกลับมาใช้แสดงวงกี่วงก็ได้ เพราะข้อมูลมาจาก Props</li>
+  </ul>
+
+  <h3>อธิบายการแสดงรูป</h3>
+  <pre>{band.image && (
+  &lt;Image
+    src={band.image}
+    alt={`รูปวง ${band.name}`}
+    width={500}
+    height={300}
+    sizes="..."
+  /&gt;
+)}</pre>
+
+  <div class="script">
+    “ผมใช้ band.image และเครื่องหมาย && เพื่อตรวจว่ามีรูปก่อนแสดง ถ้าไม่มีรูป หน้าเว็บก็ยังทำงานได้ ส่วน Image เป็น Component ของ Next.js ที่ช่วยจัดการขนาดและการโหลดรูปครับ”
+  </div>
+
+  <ul>
+    <li><code>src</code> คือตำแหน่งรูป</li>
+    <li><code>alt</code> อธิบายรูปสำหรับ accessibility และกรณีรูปโหลดไม่สำเร็จ</li>
+    <li><code>width/height</code> กำหนดสัดส่วนพื้นฐานและลด Layout Shift</li>
+    <li><code>sizes</code> บอกขนาดรูปที่เหมาะกับมือถือ แท็บเล็ต และ Desktop</li>
+  </ul>
+
+  <h3>อธิบาย map สมาชิก</h3>
+  <pre>{band.members.map((member) => (
+  &lt;li key={member.id}&gt;
+    &lt;span&gt;{member.name}&lt;/span&gt;
+    &lt;small&gt;{member.role}&lt;/small&gt;
+  &lt;/li&gt;
+))}</pre>
+
+  <div class="script">
+    “ภายใน BandCard ผมใช้ map อีกครั้งกับ band.members เพื่อแสดงสมาชิกทุกคนของวงนั้น โดยสร้าง li หนึ่งรายการต่อหนึ่งคน และใช้ member.id เป็น key ครับ”
+  </div>
+
+  <h2>6. ขั้นที่ห้า: อธิบายรูปภาพ</h2>
+  <div class="script">
+    “ผมเก็บรูปไว้ใน public/images/bands เมื่อเรียกใช้ไม่ต้องเขียนคำว่า public จึงใช้ path เริ่มจาก /images/bands ได้เลยครับ”
+  </div>
+
+  <pre>ไฟล์จริง: public/images/bands/Dept.jpg
+path ในข้อมูล: /images/bands/Dept.jpg</pre>
+
+  <div class="tip">ชื่อไฟล์ ตัวพิมพ์เล็ก-ใหญ่ ช่องว่าง และนามสกุลต้องตรงกับ path ในข้อมูล โดยเฉพาะเมื่อ deploy บนระบบที่แยกตัวพิมพ์เล็กกับใหญ่</div>
+
+  <h2>7. ขั้นที่หก: อธิบาย CSS</h2>
+  <div class="script">
+    “ส่วน CSS ผมใช้ Grid จัดการ์ดบนหน้าจอใหญ่ 3 คอลัมน์ แล้วใช้ media query ปรับเป็น 2 คอลัมน์บนแท็บเล็ตและ 1 คอลัมน์บนมือถือ ภายในการ์ดใช้ Flexbox เรียงรูปและเนื้อหาในแนวตั้งครับ”
+  </div>
+
+  <table>
+    <tr><th>CSS</th><th>สิ่งที่ควรอธิบาย</th></tr>
+    <tr><td><code>display: grid</code></td><td>เปิด Grid สำหรับจัดการ์ดหลายใบ</td></tr>
+    <tr><td><code>repeat(3, minmax(0, 1fr))</code></td><td>สร้าง 3 คอลัมน์ขนาดเท่ากัน</td></tr>
+    <tr><td><code>gap: 24px</code></td><td>เว้นระยะระหว่างการ์ด</td></tr>
+    <tr><td><code>display: flex</code></td><td>จัดส่วนต่าง ๆ ภายในการ์ด</td></tr>
+    <tr><td><code>flex-direction: column</code></td><td>เรียงรูปและข้อความจากบนลงล่าง</td></tr>
+    <tr><td><code>aspect-ratio: 5 / 3</code></td><td>ทำให้กรอบรูปทุกใบมีสัดส่วนเท่ากัน</td></tr>
+    <tr><td><code>object-fit: cover</code></td><td>ทำให้รูปเต็มกรอบโดยไม่ถูกยืด</td></tr>
+    <tr><td><code>border-radius</code></td><td>ทำให้มุมการ์ดและรูปโค้ง</td></tr>
+    <tr><td><code>box-shadow</code></td><td>สร้างเงาให้การ์ดมีมิติ</td></tr>
+    <tr><td><code>:hover</code></td><td>เปลี่ยนรูปแบบเมื่อผู้ใช้ชี้เมาส์</td></tr>
+    <tr><td><code>transition</code></td><td>ทำให้เอฟเฟกต์เปลี่ยนอย่างนุ่มนวล</td></tr>
+    <tr><td><code>@media (max-width: 900px)</code></td><td>ปรับเหลือ 2 คอลัมน์บนหน้าจอกลาง</td></tr>
+    <tr><td><code>@media (max-width: 640px)</code></td><td>ปรับเหลือ 1 คอลัมน์บนมือถือ</td></tr>
+  </table>
+
+  <h2>8. สคริปต์นำเสนอฉบับเต็มแบบสั้น</h2>
+  <div class="script">
+    “หน้า Favorite Bands นี้ผมใช้ Next.js และ TypeScript ครับ เริ่มจากสร้าง Type Member และ Band เพื่อกำหนดรูปแบบข้อมูล จากนั้นแยกข้อมูลจำลองอย่างน้อย 3 วงไว้ใน bandsdata.ts เพื่อไม่ให้ข้อมูลปนกับ Component ใน page.tsx ผม import ข้อมูลทั้งหมดแล้วใช้ bands.map สร้าง BandCard หนึ่งใบต่อหนึ่งวง โดยส่งข้อมูลผ่าน Props ส่วน BandCard รับข้อมูลหนึ่งวงมาแสดงรูป ชื่อ แนวเพลง และใช้ band.members.map แสดงสมาชิกทุกคน รูปเก็บไว้ใน public/images/bands และใช้ Next Image แสดงผล สุดท้ายใช้ CSS Grid และ media query จัดหน้าให้รองรับทั้ง Desktop Tablet และ Mobile ครับ”
+  </div>
+
+  <h2>9. คำถามที่อาจารย์น่าจะถาม</h2>
+  <table>
+    <tr><th>คำถาม</th><th>แนวตอบ</th></tr>
+    <tr><td>ทำไมต้องสร้าง Component?</td><td><span class="answer">ตอบ:</span> เพื่อแยกหน้าที่ ลดโค้ดซ้ำ และใช้ BandCard เดียวแสดงวงได้หลายวงจากข้อมูลที่ต่างกัน</td></tr>
+    <tr><td>Parent กับ Child คือไฟล์ไหน?</td><td><span class="answer">ตอบ:</span> BandsPage เป็น Parent เพราะถือข้อมูลและสร้าง BandCard ส่วน BandCard เป็น Child เพราะรับข้อมูลผ่าน Props</td></tr>
+    <tr><td>Props คืออะไร?</td><td><span class="answer">ตอบ:</span> ข้อมูลที่ Parent ส่งให้ Child ในงานนี้ส่ง Object หนึ่งวงผ่าน prop ชื่อ band</td></tr>
+    <tr><td>ทำไมใช้ map?</td><td><span class="answer">ตอบ:</span> เพื่อเปลี่ยนข้อมูลแต่ละตัวใน Array ให้เป็น JSX โดยไม่ต้องเขียนการ์ดหรือสมาชิกซ้ำเอง</td></tr>
+    <tr><td>ในงานนี้มี map กี่จุด?</td><td><span class="answer">ตอบ:</span> 2 จุด จุดแรกวนวงทั้งหมดใน BandsPage จุดที่สองวนสมาชิกของแต่ละวงใน BandCard</td></tr>
+    <tr><td>map ต่างจาก forEach อย่างไร?</td><td><span class="answer">ตอบ:</span> map คืนค่า Array ใหม่ จึงเหมาะกับการสร้าง JSX หลายรายการ ส่วน forEach ไม่คืน Array</td></tr>
+    <tr><td>key มีไว้ทำไม?</td><td><span class="answer">ตอบ:</span> ช่วยให้ React ระบุรายการแต่ละตัว และอัปเดตเฉพาะรายการที่เปลี่ยนได้ถูกต้อง</td></tr>
+    <tr><td>ทำไมไม่ใช้ index เป็น key?</td><td><span class="answer">ตอบ:</span> id มีความคงที่กว่า index โดยเฉพาะเมื่อเพิ่ม ลบ หรือสลับลำดับข้อมูล</td></tr>
+    <tr><td>Type มีประโยชน์อย่างไร?</td><td><span class="answer">ตอบ:</span> ช่วยตรวจว่าข้อมูลครบและชนิดถูกต้องก่อนรัน ลดข้อผิดพลาด เช่นใส่ id เป็นข้อความ</td></tr>
+    <tr><td>เครื่องหมาย ? หลัง image คืออะไร?</td><td><span class="answer">ตอบ:</span> Optional property หมายความว่าวงนั้นไม่มีรูปก็ได้</td></tr>
+    <tr><td>ทำไมต้องใช้ band.image &amp;&amp;?</td><td><span class="answer">ตอบ:</span> เพราะ image เป็น optional จึงตรวจว่ามีก่อนแสดง Image ป้องกันการส่งค่า undefined ให้รูป</td></tr>
+    <tr><td>ทำไมแยกข้อมูลออกจาก Component?</td><td><span class="answer">ตอบ:</span> เพื่อแยกหน้าที่ ไฟล์ data ดูแลข้อมูล ส่วน Component ดูแลการแสดงผล ทำให้แก้และนำกลับมาใช้ซ้ำง่าย</td></tr>
+    <tr><td>ทำไมใช้ import type?</td><td><span class="answer">ตอบ:</span> เพราะ Band ใช้สำหรับตรวจ Type เท่านั้น ไม่ต้องรวมเป็น JavaScript ตอนรัน</td></tr>
+    <tr><td>@/ หมายถึงอะไร?</td><td><span class="answer">ตอบ:</span> เป็น path alias ที่ชี้ไปยังโฟลเดอร์ src ทำให้ import สั้นและอ่านง่าย</td></tr>
+    <tr><td>ทำไมใช้ Next Image?</td><td><span class="answer">ตอบ:</span> ช่วยปรับขนาดรูป โหลดรูปอย่างเหมาะสม และลดปัญหาหน้าเลื่อนตอนรูปโหลด</td></tr>
+    <tr><td>ทำไมต้องมี alt?</td><td><span class="answer">ตอบ:</span> เพื่อ accessibility และอธิบายรูปเมื่อโหลดไม่สำเร็จ</td></tr>
+    <tr><td>ทำให้หน้า responsive อย่างไร?</td><td><span class="answer">ตอบ:</span> ใช้ CSS Grid กับ media query เปลี่ยนจาก 3 เป็น 2 และ 1 คอลัมน์ตามความกว้างหน้าจอ</td></tr>
+    <tr><td>ถ้าต้องการเพิ่มวงที่ 4 ทำอย่างไร?</td><td><span class="answer">ตอบ:</span> เพิ่ม Object ใหม่ใน Array bands ให้ตรงกับ Type Band หน้าเว็บจะสร้าง BandCard เพิ่มให้อัตโนมัติ</td></tr>
+    <tr><td>ถ้าต้องการเพิ่มสมาชิกทำอย่างไร?</td><td><span class="answer">ตอบ:</span> เพิ่ม Object ใน members ของวงนั้น members.map จะแสดงสมาชิกใหม่ให้อัตโนมัติ</td></tr>
+  </table>
+
+  <h2>10. จุดที่ควรสาธิตให้อาจารย์ดู</h2>
+  <ol>
+    <li>เปิดหน้า <code>/bands</code> ให้เห็นวงครบ 3 วง</li>
+    <li>ย่อหน้าต่างเพื่อให้เห็น Grid เปลี่ยนจาก 3 เป็น 2 และ 1 คอลัมน์</li>
+    <li>ชี้เมาส์บนการ์ดเพื่อแสดง hover</li>
+    <li>เพิ่มสมาชิกชั่วคราวใน bandsdata.ts แล้วให้ดูว่าหน้าเว็บเพิ่มให้อัตโนมัติ</li>
+    <li>ชี้ให้เห็น map สองจุดและอธิบายความแตกต่าง</li>
+    <li>ชี้ให้เห็นว่า Component ไม่มีข้อมูลวงเขียนตายตัว แต่รับข้อมูลผ่าน Props</li>
+  </ol>
+
+  <h2>11. สิ่งที่ควรจำให้ได้ก่อนนำเสนอ</h2>
+  <ul>
+    <li>จำหน้าที่ของไฟล์ทั้ง 4 ไฟล์ให้ได้</li>
+    <li>จำว่า Parent ส่ง <code>band={band}</code> ให้ Child</li>
+    <li>จำว่า map แรกวนวง และ map ที่สองวนสมาชิก</li>
+    <li>จำเหตุผลของ key, Type และการแยกข้อมูล</li>
+    <li>ไม่จำเป็นต้องจำ CSS ทุกค่า แต่ควรอธิบาย Grid, Flexbox, object-fit และ media query ได้</li>
+  </ul>
+
+  <div class="tip"><strong>วิธีตอบเมื่อจำไม่ได้:</strong> เปิดโค้ดแล้วไล่ตามข้อมูลจาก bandsdata.ts ไป page.tsx และ BandCard.tsx อย่าเดาสุ่ม ให้บอกตามหน้าที่ของโค้ดที่เห็น</div>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>อธิบายโค้ด Favorite Bands แบบละเอียดทุกบรรทัด</title>
+  <style>
+    body { max-width: 1080px; margin: 36px auto; padding: 0 28px 70px; color: #1e293b; font-family: "Leelawadee UI", Arial, sans-serif; font-size: 16px; line-height: 1.75; }
+    h1 { color: #0f172a; font-size: 34px; border-bottom: 4px solid #2563eb; padding-bottom: 14px; }
+    h2 { margin-top: 44px; padding-bottom: 8px; color: #1d4ed8; border-bottom: 1px solid #bfdbfe; }
+    h3 { margin-top: 30px; color: #334155; }
+    code, pre { font-family: Consolas, "Courier New", monospace; }
+    code { color: #9f1239; background: #fff1f2; padding: 1px 5px; border-radius: 4px; }
+    pre { overflow-x: auto; padding: 20px; color: #e2e8f0; font-size: 13px; line-height: 1.6; background: #0f172a; border-radius: 10px; }
+    table { width: 100%; margin: 14px 0 28px; border-collapse: collapse; }
+    th, td { padding: 10px 12px; text-align: left; vertical-align: top; border: 1px solid #cbd5e1; }
+    th { color: white; background: #1e40af; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .line { width: 105px; white-space: nowrap; font-weight: 700; color: #1d4ed8; }
+    .flow, .note { padding: 17px 20px; border-radius: 10px; }
+    .flow { text-align: center; font-weight: 700; background: #eff6ff; border: 1px solid #93c5fd; }
+    .note { background: #fefce8; border-left: 5px solid #eab308; }
+    @media print { body { margin: 0 auto; } pre { white-space: pre-wrap; } }
+  </style>
+</head>
+<body>
+  <h1>อธิบายโค้ดหน้า Favorite Bands แบบละเอียดทุกบรรทัด</h1>
+  <p>เอกสารนี้อธิบายโค้ดจริงของหน้า <code>/bands</code> ตั้งแต่ Type, Data, Page, Component และ CSS พร้อมอธิบายว่าคำสั่งแต่ละบรรทัดทำหน้าที่อะไร</p>
+
+  <div class="flow">band.ts → bandsdata.ts → bands/page.tsx → BandCard.tsx → globals.css → หน้าเว็บ</div>
+
+  <h2>ส่วนที่ 1: src/types/band.ts</h2>
+  <p>ไฟล์นี้เป็นกติกาของข้อมูล TypeScript ยังไม่สร้างสิ่งที่มองเห็นบนหน้าเว็บ แต่ช่วยตรวจว่าข้อมูลถูกต้องก่อนรัน</p>
+
+  <pre>export type Member = {
+  id: number;
+  name: string;
+  role: string;
+};
+
+export type Band = {
+  id: number;
+  name: string;
+  genre: string;
+  image?: string;
+  members: Member[];
+};</pre>
+
+  <table>
+    <tr><th class="line">บรรทัด</th><th>โค้ด</th><th>คำอธิบาย</th></tr>
+    <tr><td class="line">1–2</td><td>คอมเมนต์ <code>//</code></td><td>ข้อความสำหรับอธิบายโค้ด TypeScript จะไม่ประมวลผลข้อความหลัง <code>//</code></td></tr>
+    <tr><td class="line">3</td><td><code>export type Member = {</code></td><td>สร้าง Type ชื่อ Member สำหรับข้อมูลสมาชิกหนึ่งคน คำว่า <code>export</code> ทำให้ไฟล์อื่น import ไปใช้ได้ และปีกกาเปิดเริ่มรายการ property</td></tr>
+    <tr><td class="line">5</td><td><code>id: number;</code></td><td>สมาชิกต้องมี id และค่าต้องเป็นตัวเลข ใช้ id เป็น key ตอนวนรายการ</td></tr>
+    <tr><td class="line">7</td><td><code>name: string;</code></td><td>สมาชิกต้องมีชื่อและค่าต้องเป็นข้อความ</td></tr>
+    <tr><td class="line">9</td><td><code>role: string;</code></td><td>สมาชิกต้องมีหน้าที่ในวงและค่าต้องเป็นข้อความ</td></tr>
+    <tr><td class="line">10</td><td><code>};</code></td><td>ปิดโครงสร้าง Member และใช้ semicolon จบคำสั่ง</td></tr>
+    <tr><td class="line">13</td><td><code>export type Band = {</code></td><td>สร้าง Type ชื่อ Band สำหรับข้อมูลวงดนตรีหนึ่งวง</td></tr>
+    <tr><td class="line">15</td><td><code>id: number;</code></td><td>รหัสวงเป็นตัวเลขและไม่ควรซ้ำกับวงอื่น</td></tr>
+    <tr><td class="line">17</td><td><code>name: string;</code></td><td>ชื่อวงเป็นข้อความ</td></tr>
+    <tr><td class="line">19</td><td><code>genre: string;</code></td><td>แนวเพลงเป็นข้อความ</td></tr>
+    <tr><td class="line">21</td><td><code>image?: string;</code></td><td>path รูปเป็นข้อความ เครื่องหมาย <code>?</code> ทำให้ property นี้เป็น optional คือจะใส่หรือไม่ใส่ก็ได้</td></tr>
+    <tr><td class="line">23</td><td><code>members: Member[];</code></td><td>members เป็น Array และสมาชิกทุกตัวใน Array ต้องตรงกับ Type Member</td></tr>
+    <tr><td class="line">24</td><td><code>};</code></td><td>ปิด Type Band</td></tr>
+  </table>
+
+  <h2>ส่วนที่ 2: src/data/bandsdata.ts</h2>
+  <p>ไฟล์นี้เก็บข้อมูลจริง แยกออกจาก Component เพื่อให้เพิ่มหรือลบวงได้โดยไม่ต้องแก้โครงสร้างหน้าจอ</p>
+
+  <pre>import type { Band } from "@/types/band";
+
+export const bands: Band[] = [
+  {
+    id: 1,
+    name: "Dept",
+    genre: "Synth-pop",
+    image: "/images/bands/Dept.jpg",
+    members: [
+      {
+        id: 1,
+        name: "เบนซ์ ภวัต โอภาสสิริโชติ",
+        role: "นักร้องนำ/กีตาร์",
+      },
+      {
+        id: 2,
+        name: "ลุค ทาวน์เซน",
+        role: "คีย์บอร์ด",
+      },
+    ],
+  },
+  // วงที่ 2 และวงที่ 3 ใช้โครงสร้างเดียวกัน
+];</pre>
+
+  <table>
+    <tr><th class="line">บรรทัด</th><th>โค้ด</th><th>คำอธิบาย</th></tr>
+    <tr><td class="line">1</td><td>คอมเมนต์</td><td>อธิบายเหตุผลของการ import type ไม่มีผลต่อการทำงาน</td></tr>
+    <tr><td class="line">2</td><td><code>import type { Band } from "@/types/band";</code></td><td>นำ Type Band มาใช้ตรวจข้อมูล คำว่า <code>type</code> บอกว่า import นี้ใช้ตอนตรวจ Type เท่านั้น ส่วน <code>@/</code> ชี้ไปที่โฟลเดอร์ src</td></tr>
+    <tr><td class="line">4–5</td><td>คอมเมนต์</td><td>อธิบายว่า Array นี้ต้องตรงกับ Band และส่งออกไปให้ไฟล์อื่นใช้</td></tr>
+    <tr><td class="line">6</td><td><code>export const bands: Band[] = [</code></td><td>สร้างตัวแปร bands แบบ Array ของ Band, <code>const</code> ป้องกันการกำหนดตัวแปร bands ใหม่, <code>export</code> ให้ไฟล์อื่นนำไปใช้ และ <code>[</code> เริ่ม Array</td></tr>
+    <tr><td class="line">8</td><td><code>{</code></td><td>เริ่ม Object ของวง Dept</td></tr>
+    <tr><td class="line">9</td><td><code>id: 1,</code></td><td>กำหนดรหัสวงเป็น 1 เครื่องหมาย comma ใช้คั่น property ถัดไป</td></tr>
+    <tr><td class="line">10</td><td><code>name: "Dept",</code></td><td>กำหนดชื่อวง ข้อความต้องอยู่ในเครื่องหมายคำพูด</td></tr>
+    <tr><td class="line">11</td><td><code>genre: "Synth-pop",</code></td><td>กำหนดแนวเพลง</td></tr>
+    <tr><td class="line">13</td><td><code>image: "/images/bands/Dept.jpg",</code></td><td>กำหนด URL รูป โดยเริ่มหลังโฟลเดอร์ public จึงไม่เขียนคำว่า public ใน path</td></tr>
+    <tr><td class="line">15</td><td><code>members: [</code></td><td>เริ่ม Array สำหรับสมาชิกของวง Dept</td></tr>
+    <tr><td class="line">16</td><td><code>{</code></td><td>เริ่ม Object ของสมาชิกคนแรก</td></tr>
+    <tr><td class="line">17–19</td><td><code>id, name, role</code></td><td>กำหนดรหัส ชื่อ และหน้าที่ของสมาชิกคนแรก โดยตรงกับ Type Member</td></tr>
+    <tr><td class="line">20</td><td><code>},</code></td><td>ปิด Object สมาชิกคนแรกและคั่นสมาชิกคนต่อไป</td></tr>
+    <tr><td class="line">21–25</td><td>Object สมาชิกคนที่ 2</td><td>กำหนดข้อมูลสมาชิกคนที่สองด้วยโครงสร้างเดียวกัน</td></tr>
+    <tr><td class="line">26</td><td><code>],</code></td><td>ปิด Array members ของวง Dept</td></tr>
+    <tr><td class="line">27</td><td><code>},</code></td><td>ปิด Object วง Dept และคั่นวงถัดไป</td></tr>
+    <tr><td class="line">29–47</td><td>Object วง SERIOUS BACON</td><td>กำหนด id, name, genre, image และสมาชิก 2 คน โครงสร้างเหมือนวงแรก</td></tr>
+    <tr><td class="line">49–72</td><td>Object วง Tilly Birds</td><td>กำหนดข้อมูลวงที่สามและสมาชิก 3 คน</td></tr>
+    <tr><td class="line">73</td><td><code>];</code></td><td>ปิด Array bands และจบคำสั่งประกาศตัวแปร</td></tr>
+  </table>
+
+  <h2>ส่วนที่ 3: src/app/bands/page.tsx</h2>
+  <p>ไฟล์นี้เป็น Parent Component และเป็นหน้า route <code>/bands</code> หน้าที่หลักคือรับข้อมูลทั้งหมดแล้ววนสร้าง BandCard</p>
+
+  <pre>import BandCard from "@/components/BandCard";
+import { bands } from "@/data/bandsdata";
+
+export default function BandsPage() {
+  return (
+    &lt;main className="page bandsPage"&gt;
+      &lt;header className="bandsHeader"&gt;
+        &lt;p className="eyebrow"&gt;FAVORITE BANDS&lt;/p&gt;
+        &lt;h1&gt;วงดนตรีที่ชื่นชอบ&lt;/h1&gt;
+        &lt;p className="pageDescription"&gt;คำอธิบายหน้า&lt;/p&gt;
+      &lt;/header&gt;
+
+      &lt;section className="bandGrid" aria-label="รายการวงดนตรี"&gt;
+        {bands.map((band) =&gt; (
+          &lt;BandCard key={band.id} band={band} /&gt;
+        ))}
+      &lt;/section&gt;
+    &lt;/main&gt;
+  );
+}</pre>
+
+  <table>
+    <tr><th class="line">บรรทัด</th><th>คำอธิบาย</th></tr>
+    <tr><td class="line">1–2</td><td>คอมเมนต์และ import BandCard ซึ่งเป็น Component สำหรับแสดงข้อมูลหนึ่งวง</td></tr>
+    <tr><td class="line">3–4</td><td>คอมเมนต์และ import ตัวแปร bands จากไฟล์ข้อมูล เครื่องหมายปีกกาใช้กับ named export</td></tr>
+    <tr><td class="line">6–7</td><td><code>export default function BandsPage()</code> สร้าง Component หลัก Next.js ใช้ default export ของ page.tsx เป็นหน้า /bands</td></tr>
+    <tr><td class="line">8–9</td><td><code>return (</code> เริ่มส่ง JSX ที่ React ต้องนำไปแสดง</td></tr>
+    <tr><td class="line">11</td><td><code>&lt;main className="page bandsPage"&gt;</code> ครอบเนื้อหาหลัก และเชื่อม CSS สอง class คือ page กับ bandsPage</td></tr>
+    <tr><td class="line">13</td><td><code>&lt;header className="bandsHeader"&gt;</code> เริ่มส่วนหัวของหน้า</td></tr>
+    <tr><td class="line">15</td><td><code>&lt;p className="eyebrow"&gt;</code> แสดงข้อความขนาดเล็กเหนือหัวข้อ</td></tr>
+    <tr><td class="line">17</td><td><code>&lt;h1&gt;</code> หัวข้อหลักที่สำคัญที่สุดของหน้า</td></tr>
+    <tr><td class="line">18–20</td><td><code>pageDescription</code> แสดงคำอธิบายว่าหน้านี้มีข้อมูลอะไร</td></tr>
+    <tr><td class="line">21</td><td><code>&lt;/header&gt;</code> ปิดส่วนหัว</td></tr>
+    <tr><td class="line">25</td><td><code>&lt;section className="bandGrid" aria-label="รายการวงดนตรี"&gt;</code> รวมรายการวงทั้งหมด, bandGrid ใช้จัด Grid และ aria-label อธิบายส่วนนี้ให้โปรแกรมอ่านหน้าจอ</td></tr>
+    <tr><td class="line">27</td><td><code>bands.map((band) =&gt; (</code> วน Array bands ทีละวง ตัวแปร band คือวงปัจจุบันในรอบนั้น</td></tr>
+    <tr><td class="line">28</td><td><code>&lt;BandCard key={band.id} band={band} /&gt;</code> สร้างการ์ด, key ช่วย React แยกรายการ และ band={band} ส่งข้อมูลผ่าน Props</td></tr>
+    <tr><td class="line">29</td><td><code>))}</code> วงเล็บแรกปิด JSX, วงเล็บสองปิด callback, วงเล็บสามปิด map และปีกกาปิด JavaScript ใน JSX</td></tr>
+    <tr><td class="line">30–33</td><td>ปิด section, main, return และฟังก์ชัน BandsPage ตามลำดับ</td></tr>
+  </table>
+
+  <h2>ส่วนที่ 4: src/components/BandCard.tsx</h2>
+  <p>ไฟล์นี้เป็น Child Component รับข้อมูลหนึ่งวงผ่าน Props แล้วสร้างการ์ดหนึ่งใบ</p>
+
+  <pre>import Image from "next/image";
+import type { Band } from "@/types/band";
+
+type BandCardProps = { band: Band };
+
+export default function BandCard({ band }: BandCardProps) {
+  return (
+    &lt;article className="bandCard"&gt;
+      {band.image &amp;&amp; (
+        &lt;div className="bandImageWrapper"&gt;
+          &lt;Image src={band.image} alt={`รูปวง ${band.name}`} /&gt;
+        &lt;/div&gt;
+      )}
+
+      &lt;div className="bandContent"&gt;
+        &lt;p className="bandGenre"&gt;{band.genre}&lt;/p&gt;
+        &lt;h2&gt;{band.name}&lt;/h2&gt;
+        &lt;ul className="memberList"&gt;
+          {band.members.map((member) =&gt; (
+            &lt;li key={member.id}&gt;
+              &lt;span&gt;{member.name}&lt;/span&gt;
+              &lt;small&gt;{member.role}&lt;/small&gt;
+            &lt;/li&gt;
+          ))}
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/article&gt;
+  );
+}</pre>
+
+  <table>
+    <tr><th class="line">บรรทัด</th><th>คำอธิบาย</th></tr>
+    <tr><td class="line">1–2</td><td>import <code>Image</code> จาก Next.js เพื่อปรับขนาดและโหลดรูปอย่างเหมาะสม</td></tr>
+    <tr><td class="line">3–4</td><td>import Type Band มาใช้ตรวจ Props ของ Component</td></tr>
+    <tr><td class="line">6–10</td><td>สร้าง Type BandCardProps และกำหนดว่า prop ชื่อ band ต้องตรงกับ Type Band</td></tr>
+    <tr><td class="line">12–14</td><td>สร้าง Component BandCard, <code>{ band }</code> คือ destructuring และ <code>: BandCardProps</code> ใช้ตรวจ Props</td></tr>
+    <tr><td class="line">15</td><td><code>return (</code> เริ่ม JSX ของการ์ด</td></tr>
+    <tr><td class="line">17</td><td><code>article</code> เป็น semantic element สำหรับเนื้อหาที่สมบูรณ์หนึ่งรายการ ในที่นี้คือหนึ่งวง</td></tr>
+    <tr><td class="line">19</td><td><code>band.image &amp;&amp; (</code> เป็น conditional rendering ถ้ามี image จึงแสดงส่วนรูป ถ้าไม่มีจะข้าม</td></tr>
+    <tr><td class="line">20</td><td><code>bandImageWrapper</code> เป็นกรอบควบคุมสัดส่วนและส่วนเกินของรูป</td></tr>
+    <tr><td class="line">22</td><td><code>&lt;Image</code> เริ่ม Next.js Image Component</td></tr>
+    <tr><td class="line">23</td><td><code>className="bandImage"</code> เชื่อมรูปกับ CSS</td></tr>
+    <tr><td class="line">24</td><td><code>src={band.image}</code> อ่าน path รูปจากข้อมูลวงปัจจุบัน</td></tr>
+    <tr><td class="line">25</td><td><code>alt={`รูปวง ${band.name}`}</code> ใช้ template literal รวมข้อความกับชื่อวง เพื่ออธิบายรูป</td></tr>
+    <tr><td class="line">26–27</td><td><code>width</code> และ <code>height</code> กำหนดขนาดพื้นฐานและช่วยป้องกัน layout shift</td></tr>
+    <tr><td class="line">28</td><td><code>sizes</code> บอกขนาดรูปตาม viewport: มือถือเต็มจอ, tablet ครึ่งจอ, desktop หนึ่งในสาม</td></tr>
+    <tr><td class="line">29–31</td><td>ปิด Image, div รูป และเงื่อนไข image</td></tr>
+    <tr><td class="line">34</td><td><code>bandContent</code> ครอบข้อความทั้งหมดในการ์ด</td></tr>
+    <tr><td class="line">36</td><td><code>{band.genre}</code> อ่านและแสดงแนวเพลงจาก Object</td></tr>
+    <tr><td class="line">38</td><td><code>{band.name}</code> อ่านและแสดงชื่อวงใน h2</td></tr>
+    <tr><td class="line">40</td><td><code>h3</code> เป็นหัวข้อย่อย “สมาชิก”</td></tr>
+    <tr><td class="line">42</td><td><code>ul</code> เริ่ม unordered list สำหรับรายการสมาชิก</td></tr>
+    <tr><td class="line">44</td><td><code>band.members.map()</code> วนสมาชิกทุกคนของวงปัจจุบัน</td></tr>
+    <tr><td class="line">45</td><td><code>li key={member.id}</code> สร้างหนึ่งรายการต่อหนึ่งคนและกำหนด key</td></tr>
+    <tr><td class="line">47</td><td><code>span</code> แสดงชื่อสมาชิก</td></tr>
+    <tr><td class="line">48</td><td><code>small</code> แสดงหน้าที่ด้วยตัวอักษรขนาดเล็กกว่า</td></tr>
+    <tr><td class="line">49–55</td><td>ปิด li, map, ul, bandContent, article, return และฟังก์ชัน</td></tr>
+  </table>
+
+  <h2>ส่วนที่ 5: CSS ใน src/app/globals.css</h2>
+  <p>Selector เลือก element จาก className ใน JSX ส่วน property ภายในปีกกากำหนดรูปแบบของ element นั้น</p>
+
+  <h3>.bandsPage และ .bandsHeader</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>.bandsPage</code></td><td>เลือก main ที่มี class bandsPage</td></tr>
+    <tr><td><code>position: relative</code></td><td>กำหนดขอบเขตอ้างอิงให้ element ลูกที่อาจใช้ position absolute</td></tr>
+    <tr><td><code>max-width: 52rem</code></td><td>จำกัดความกว้าง header เพื่อไม่ให้ข้อความยาวเกินไป</td></tr>
+    <tr><td><code>margin-bottom: 36px</code></td><td>เว้นระหว่าง header กับ Grid 36 พิกเซล</td></tr>
+    <tr><td><code>.bandsHeader h1</code></td><td>เลือกเฉพาะ h1 ที่อยู่ภายใน bandsHeader</td></tr>
+    <tr><td><code>margin-bottom: 18px</code></td><td>เว้นระหว่าง h1 กับคำอธิบาย</td></tr>
+    <tr><td><code>margin: 0</code></td><td>ลบ margin เริ่มต้นของ pageDescription</td></tr>
+  </table>
+
+  <h3>.bandGrid</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>display: grid</code></td><td>เปิดใช้งาน CSS Grid</td></tr>
+    <tr><td><code>grid-template-columns: repeat(3, minmax(0, 1fr))</code></td><td>สร้าง 3 คอลัมน์เท่ากัน 1fr หมายถึงหนึ่งส่วนของพื้นที่ที่มี</td></tr>
+    <tr><td><code>gap: 24px</code></td><td>เว้นช่องว่างระหว่างการ์ดทุกทิศทาง 24 พิกเซล</td></tr>
+    <tr><td><code>align-items: stretch</code></td><td>ยืดการ์ดในแถวให้สูงเท่ากัน</td></tr>
+  </table>
+
+  <h3>.bandCard</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>position: relative</code></td><td>เป็นขอบเขตให้ pseudo-element <code>::after</code></td></tr>
+    <tr><td><code>display: flex</code></td><td>เปิด Flexbox เพื่อจัดรูปและเนื้อหา</td></tr>
+    <tr><td><code>min-width: 0</code></td><td>อนุญาตให้การ์ดย่อใน Grid และป้องกันเนื้อหาดันคอลัมน์กว้างเกิน</td></tr>
+    <tr><td><code>overflow: hidden</code></td><td>ซ่อนรูปหรือเนื้อหาที่เกินขอบมนของการ์ด</td></tr>
+    <tr><td><code>flex-direction: column</code></td><td>เรียงลูกจากบนลงล่าง: รูปก่อน เนื้อหาทีหลัง</td></tr>
+    <tr><td><code>linear-gradient(...)</code></td><td>สร้างพื้นหลังไล่ระดับโปร่งใส</td></tr>
+    <tr><td><code>border: 1px solid var(--border)</code></td><td>สร้างขอบ 1px โดยใช้ตัวแปรสีส่วนกลาง</td></tr>
+    <tr><td><code>border-radius: 22px</code></td><td>ทำมุมการ์ดให้โค้ง</td></tr>
+    <tr><td><code>box-shadow</code></td><td>สร้างเงาด้านหลังให้การ์ดมีมิติ</td></tr>
+    <tr><td><code>transition</code></td><td>ทำให้ transform, สีขอบ และเงาเปลี่ยนอย่างนุ่มนวลภายใน 0.3 วินาที</td></tr>
+  </table>
+
+  <h3>.bandCard::after และ :hover</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>::after</code></td><td>สร้าง pseudo-element เพิ่มขึ้นมาเพื่อทำแสงบาง ๆ ด้านใน โดยไม่เพิ่ม HTML</td></tr>
+    <tr><td><code>position: absolute</code></td><td>วาง pseudo-element ซ้อนบนการ์ด</td></tr>
+    <tr><td><code>inset: 0</code></td><td>ให้ขอบทั้งสี่ชิดการ์ด เท่ากับ top/right/bottom/left เป็น 0</td></tr>
+    <tr><td><code>content: ""</code></td><td>จำเป็นสำหรับสร้าง pseudo-element แม้ไม่มีข้อความ</td></tr>
+    <tr><td><code>pointer-events: none</code></td><td>ไม่ให้ชั้นตกแต่งขวางการคลิกหรือ hover</td></tr>
+    <tr><td><code>border-radius: inherit</code></td><td>รับค่าความโค้งจาก bandCard</td></tr>
+    <tr><td><code>box-shadow: inset ...</code></td><td>สร้างเงาด้านในเป็นเส้นแสงบาง ๆ</td></tr>
+    <tr><td><code>.bandCard:hover</code></td><td>ทำงานเมื่อเมาส์ชี้การ์ด</td></tr>
+    <tr><td><code>transform: translateY(-7px)</code></td><td>เลื่อนการ์ดขึ้น 7px</td></tr>
+  </table>
+
+  <h3>รูปภาพ</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>aspect-ratio: 5 / 3</code></td><td>บังคับกรอบรูปทุกวงให้มีสัดส่วน 5 ต่อ 3</td></tr>
+    <tr><td><code>overflow: hidden</code></td><td>ซ่อนส่วนรูปที่ล้นกรอบ</td></tr>
+    <tr><td><code>background: var(--surface-light)</code></td><td>แสดงพื้นหลังระหว่างรอรูปโหลด</td></tr>
+    <tr><td><code>width: 100%; height: 100%</code></td><td>ให้รูปใช้พื้นที่กรอบทั้งหมด</td></tr>
+    <tr><td><code>object-fit: cover</code></td><td>ครอบรูปให้เต็มกรอบโดยรักษาสัดส่วน อาจตัดขอบรูปบางส่วน</td></tr>
+    <tr><td><code>filter: brightness(1.08)</code></td><td>เพิ่มความสว่างรูปเล็กน้อยตอน hover</td></tr>
+    <tr><td><code>transform: scale(1.045)</code></td><td>ขยายรูปประมาณ 4.5% ตอน hover</td></tr>
+  </table>
+
+  <h3>เนื้อหา แนวเพลง และสมาชิก</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>.bandContent display: flex</code></td><td>จัดเนื้อหาในการ์ดด้วย Flexbox</td></tr>
+    <tr><td><code>flex: 1</code></td><td>ให้เนื้อหาใช้พื้นที่ที่เหลือทั้งหมด</td></tr>
+    <tr><td><code>flex-direction: column</code></td><td>เรียงแนวเพลง ชื่อวง และสมาชิกจากบนลงล่าง</td></tr>
+    <tr><td><code>padding: 24px</code></td><td>เว้นเนื้อหาออกจากขอบการ์ด</td></tr>
+    <tr><td><code>clamp(1.45rem, 2vw, 2rem)</code></td><td>ปรับขนาดชื่อวงตามหน้าจอ แต่ไม่เล็กกว่า 1.45rem และไม่ใหญ่กว่า 2rem</td></tr>
+    <tr><td><code>align-self: flex-start</code></td><td>ให้ป้าย genre กว้างเท่าข้อความ ไม่ยืดเต็มการ์ด</td></tr>
+    <tr><td><code>text-transform: uppercase</code></td><td>แสดง genre และหัวข้อสมาชิกเป็นตัวพิมพ์ใหญ่</td></tr>
+    <tr><td><code>border-radius: 999px</code></td><td>ทำให้ป้าย genre มีทรงแคปซูล</td></tr>
+    <tr><td><code>border-top</code></td><td>สร้างเส้นแบ่งก่อนส่วนสมาชิก</td></tr>
+    <tr><td><code>list-style: none</code></td><td>เอาจุดนำหน้ารายการ ul ออก</td></tr>
+    <tr><td><code>.memberList li display: grid</code></td><td>แยกชื่อกับหน้าที่เป็นคนละแถว</td></tr>
+    <tr><td><code>small</code></td><td>กำหนดหน้าที่สมาชิกให้เล็กและสีอ่อนกว่าชื่อ</td></tr>
+  </table>
+
+  <h3>Responsive</h3>
+  <table>
+    <tr><th>คำสั่ง CSS</th><th>หน้าที่</th></tr>
+    <tr><td><code>@media (max-width: 900px)</code></td><td>เมื่อหน้าจอกว้างไม่เกิน 900px เปลี่ยน Grid จาก 3 เป็น 2 คอลัมน์</td></tr>
+    <tr><td><code>@media (max-width: 640px)</code></td><td>เมื่อหน้าจอกว้างไม่เกิน 640px ใช้รูปแบบมือถือ</td></tr>
+    <tr><td><code>grid-template-columns: 1fr</code></td><td>แสดงการ์ดทีละหนึ่งคอลัมน์บนมือถือ</td></tr>
+    <tr><td><code>gap: 18px</code></td><td>ลดช่องว่างระหว่างการ์ดบนมือถือ</td></tr>
+    <tr><td><code>padding: 20px</code></td><td>ลดพื้นที่ภายในการ์ดเพื่อให้เหมาะกับหน้าจอแคบ</td></tr>
+  </table>
+
+  <h2>ส่วนที่ 6: ลำดับการทำงานจริง</h2>
+  <ol>
+    <li>ผู้ใช้เปิด URL <code>/bands</code></li>
+    <li>Next.js หาไฟล์ <code>src/app/bands/page.tsx</code></li>
+    <li>BandsPage import Array <code>bands</code> จากไฟล์ข้อมูล</li>
+    <li>TypeScript ใช้ Band และ Member ตรวจว่าข้อมูลครบและชนิดถูกต้อง</li>
+    <li><code>bands.map()</code> วนวงดนตรีทีละวง</li>
+    <li>แต่ละวงถูกส่งให้ BandCard ผ่าน prop <code>band</code></li>
+    <li>BandCard ตรวจ image แล้วแสดงรูป ชื่อ และแนวเพลง</li>
+    <li><code>band.members.map()</code> วนสมาชิกทีละคน</li>
+    <li>React สร้าง HTML จาก JSX ทั้งหมด</li>
+    <li>CSS Grid และ media query จัดหน้าให้เหมาะกับอุปกรณ์</li>
+  </ol>
+
+  <div class="note"><strong>ประโยคสรุปสำหรับอธิบายงาน:</strong> ข้อมูลถูกกำหนดรูปแบบด้วย TypeScript และแยกเก็บในไฟล์ data จากนั้น Parent Component ใช้ map วนข้อมูลแล้วส่งแต่ละวงผ่าน Props ไปยัง BandCard ซึ่งใช้ map อีกครั้งเพื่อแสดงสมาชิกทั้งหมด ส่วน CSS Grid และ media query ใช้จัดหน้าให้ responsive</div>
+</body>
+</html>
