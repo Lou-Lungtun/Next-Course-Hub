@@ -1,5 +1,5 @@
-// รับ BandCard ซึ่งเป็น Child Component สำหรับแสดงข้อมูลวงละหนึ่งใบ
-import BandCard from "@/components/BandCard";
+// รับ Client Component ที่จัดการการค้นหา ติดตาม และ Like
+import BandExplorer from "@/components/BandExplorer";
 // รับ Array bands ที่ export มาจากไฟล์ data
 import { bands } from "@/data/bandsdata";
 
@@ -21,16 +21,8 @@ export default function BandsPage() {
         </p>
       </header>
 
-      {/* section รับการจัดวางแบบ Grid และรวม BandCard ทุกใบไว้ด้วยกัน */}
-      {/* aria-label ส่งคำอธิบายของ section ให้โปรแกรมอ่านหน้าจอ */}
-      <section className="bandGrid" aria-label="รายการวงดนตรี">
-        {/* bands.map() รับ Array จาก data แล้ววน Object ทีละวง */}
-        {/* แต่ละรอบสร้าง BandCard 1 ใบ, key แยกรายการ และ band ส่ง Object ผ่าน Props */}
-        {bands.map((band) => (
-          <BandCard key={band.id} band={band} />
-        ))}
-        {/* เมื่อ map() ทำงานครบ จะได้ BandCard ตามจำนวน Object ใน bands */}
-      </section>
+      {/* ส่ง Array bands ให้ BandExplorer ผ่าน Props */}
+      <BandExplorer bands={bands} />
     </main>
   );
 }

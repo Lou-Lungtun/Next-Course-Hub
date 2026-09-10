@@ -7,12 +7,31 @@ import type { Band } from "@/types/band";
 type BandCardProps = {
   // ค่า band ที่รับมาต้องตรงกับโครงสร้าง Type Band
   band: Band;
+  // สถานะว่ากำลังติดตามวงนี้หรือไม่
+  isFollowing: boolean;
+  // จำนวน Like ของวงนี้
+  likeCount: number;
+  // ฟังก์ชันที่รับ id เพื่อสลับสถานะติดตาม
+  onToggleFollow: (id: number) => void;
+  // ฟังก์ชันที่รับ id เพื่อเพิ่มจำนวน Like
+  onLike: (id: number) => void;
 };
 
 // สร้าง Child Component สำหรับแสดงข้อมูลวงดนตรีหนึ่งวง
-// BandsPage ส่ง band={band} เข้ามา และ { band } ดึงค่านั้นจาก Props
-export default function BandCard({ band }: BandCardProps) {
-  // return ส่ง JSX ของการ์ดหนึ่งใบกลับไปให้ BandsPage
+// BandExplorer ส่ง Props เข้ามา และการเขียนชื่อใน { } คือการดึงค่าออกจาก Props
+export default function BandCard({
+  // Object ข้อมูลของวงที่กำลังแสดง
+  band,
+  // สถานะติดตามที่คำนวณมาจาก BandExplorer
+  isFollowing,
+  // ยอด Like ของวงนี้ที่เก็บอยู่ใน BandExplorer
+  likeCount,
+  // Callback สำหรับแจ้ง BandExplorer เมื่อกดติดตาม
+  onToggleFollow,
+  // Callback สำหรับแจ้ง BandExplorer เมื่อกด Like
+  onLike,
+}: BandCardProps) {
+  // return ส่ง JSX ของการ์ดหนึ่งใบกลับไปให้ BandExplorer
   return (
     /* article ครอบข้อมูลของวงหนึ่งวงและเชื่อมกับ CSS class bandCard */
     <article className="bandCard">
@@ -45,7 +64,7 @@ export default function BandCard({ band }: BandCardProps) {
         <h2>{band.name}</h2>
 
         {/* หัวข้อย่อยก่อนเริ่มรายการสมาชิก */}
-        <h3 className="memberTitle">สมาชิก</h3>
+        <h3 className="memberTitle">สมาชิก ({band.members.length} คน)</h3>
         {/* ul ครอบรายการสมาชิกทุกคนที่ map() สร้าง */}
         <ul className="memberList">
           {/* รับ Array members ของวงปัจจุบัน แล้ววนสมาชิกทีละ Object */}
@@ -74,6 +93,37 @@ export default function BandCard({ band }: BandCardProps) {
           ))}
           {/* เมื่อ map() จบ จะได้ li ครบตามจำนวนสมาชิกของวงนั้น */}
         </ul>
+
+        {/* div ครอบปุ่มติดตามและปุ่ม Like เพื่อจัดวางให้อยู่ด้วยกัน */}
+        <div className="bandActions">
+          {/* ปุ่มสลับระหว่างติดตามกับเลิกติดตาม */}
+          <button
+            /* className ใช้เลือกสไตล์ของปุ่มติดตามจาก CSS */
+            className="followButton"
+            /* ป้องกันไม่ให้ปุ่มทำหน้าที่ส่ง form โดยไม่ตั้งใจ */
+            type="button"
+            /* บอกสถานะการกดแก่โปรแกรมอ่านหน้าจอ */
+            aria-pressed={isFollowing}
+            /* เมื่อคลิก ส่ง id วงนี้กลับไปให้ฟังก์ชันใน BandExplorer */
+            onClick={() => onToggleFollow(band.id)}
+          >
+            {/* เปลี่ยนข้อความบนปุ่มตามสถานะ isFollowing */}
+            {isFollowing ? "กำลังติดตาม" : "ติดตามวงนี้"}
+          </button>
+
+          {/* ปุ่มเพิ่มยอด Like ของวงนี้ */}
+          <button
+            /* className ใช้เลือกสไตล์ของปุ่ม Like จาก CSS */
+            className="likeButton"
+            /* กำหนดให้เป็นปุ่มทั่วไป ไม่ใช่ปุ่มส่ง form */
+            type="button"
+            /* เมื่อคลิก ส่ง id วงนี้กลับไปเพิ่มยอดใน BandExplorer */
+            onClick={() => onLike(band.id)}
+          >
+            {/* แสดงคำว่า Like ตามด้วยยอดปัจจุบันที่รับมาทาง Props */}
+            Like {likeCount}
+          </button>
+        </div>
       </div>
     </article>
   );

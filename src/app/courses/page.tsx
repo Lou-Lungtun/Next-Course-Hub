@@ -1,22 +1,22 @@
-import CourseCard from "@/components/CourseCard";
+// "use client";
+// import CounterDemo from "@/components/CounterDemo";
+// import ButtonComponent from "@/components/ButtonComponent";
+import type { Metadata } from "next";
 import { courses } from "./data/coursesdata";
+import CourseExplorer from "@/components/CourseExplorer";
+
+export const metadata: Metadata = { 
+  title: "รายวิชาทั้งหมด", 
+};
 
 export default function CoursesPage() {
   return (
     <main>
+      
+      {/* <ButtonComponent /><br />
+      <CounterDemo /> */}
       <h1>รายวิชาทั้งหมด</h1>
-
-      <section className="courseGrid" aria-label="รายการรายวิชา">
-        {courses.map((course) => (
-          <CourseCard
-            key={course.id}
-            code={course.code}
-            title={course.title}
-            credits={course.credits}
-            isOpen={course.isOpen}
-          />
-        ))}
-      </section>
+      <CourseExplorer courses={courses} />
     </main>
   );
 }
