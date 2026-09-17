@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import type { Course } from "@/types/course";
+import type { Course } from "../../types/course";
 import CourseCard from "./CourseCard";
+import CourseForm, { type CourseDraft } from "./CourseForm";
 
 type CourseExplorerProps = {
   courses: Course[];
@@ -10,16 +11,19 @@ type CourseExplorerProps = {
 
 type CourseFilter = "all" | "open" | "closed" | "favorites";
 
-export default function CourseExplorer({ courses }: CourseExplorerProps) {
+export default function CourseExplorer({ courses: initialCourses }: CourseExplorerProps) {
+  const [courses, setCourses] = useState<Course[]>(initialCourses);
   const [keyword, setKeyword] = useState("");
   const [activeFilter, setActiveFilter] = useState<CourseFilter>("all");
-  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   function handleKeywordChange(event: ChangeEvent<HTMLInputElement>) {
     setKeyword(event.target.value);
   }
 
-  function handleToggleFavorite(id: number) {
+  function handleToggleFavorite(id: string) {
     setFavoriteIds((prevIds) =>
       prevIds.includes(id)
         ? prevIds.filter((favoriteId) => favoriteId !== id)
@@ -32,11 +36,81 @@ export default function CourseExplorer({ courses }: CourseExplorerProps) {
     setActiveFilter("all");
   }
 
+  function handleCreate(draft: CourseDraft) {
+    // เติม: เมธอดที่สร้างรหัสสุ่มไม่ซ้ำกันในรูปแบบ UUID
+    const newCourse: Course = {
+      id: crypto.randomUUID(),
+      code: draft.code.trim(),
+      name: draft.name.trim(),
+      credit: Number(draft.credit),
+      instructor: draft.instructor.trim(),
+      isOpen: false
+    };
+
+    setCourses([...courses, newCourse]);
+  }
+
+  function handleDelete(id: string) {
+    // เติม: เมธอดของ Array ที่คืนเฉพาะสมาชิกที่ผ่านเงื่อนไข
+    setCourses(courses.filter((course) => course.id !== id));
+    setFavoriteIds((prevIds) => prevIds.filter((favoriteId) => favoriteId !== id));
+    if (editingId === id) {
+      setEditingId(null);
+      setIsFormOpen(false);
+    }
+  }
+
+  function handleUpdate(id: string, draft: CourseDraft) {
+    setCourses(
+      courses.map((course) =>
+        course.id === id
+          ? {
+            ...course,
+            code: draft.code.trim(),
+            name: draft.name.trim(),
+            credit: Number(draft.credit),
+            instructor: draft.instructor.trim(),
+          }
+          : course
+      )
+    );
+
+    setEditingId(null);
+  }
+
+  function handleSave(draft: CourseDraft) {
+    if (editingId === null) {
+      handleCreate(draft);
+    } else {
+      handleUpdate(editingId, draft);
+    }
+
+    setIsFormOpen(false);
+  }
+
+  function handleStartEdit(id: string) {
+    setEditingId(id);
+    setIsFormOpen(true);
+  }
+
+  function handleToggleForm() {
+    setEditingId(null);
+    setIsFormOpen((isOpen) => !isOpen);
+  }
+
+  function handleCancelForm() {
+    setEditingId(null);
+    setIsFormOpen(false);
+  }
+
+  const editingCourse = courses.find((course) => course.id === editingId);
+
+
   const searchText = keyword.trim().toLowerCase();
 
   const visibleCourses = courses.filter((course) => {
     const matchesKeyword =
-      course.title.toLowerCase().includes(searchText) ||
+      course.name.toLowerCase().includes(searchText) ||
       course.code.toLowerCase().includes(searchText);
 
     const matchesFilter =
@@ -55,8 +129,33 @@ export default function CourseExplorer({ courses }: CourseExplorerProps) {
     { value: "favorites", label: `รายการโปรด (${favoriteIds.length})` },
   ];
 
+
   return (
     <div className="courseExplorer">
+      <section className="courseManagerBar" aria-label="จัดการรายวิชา">
+        <div>
+          <strong>จัดการรายวิชา</strong>
+          <span>เพิ่มหรือแก้ไขข้อมูลเมื่อต้องการ</span>
+        </div>
+        <button
+          className="courseFormToggle"
+          type="button"
+          aria-expanded={isFormOpen}
+          onClick={handleToggleForm}
+        >
+          {isFormOpen ? "ปิดฟอร์ม" : "+ เพิ่มรายวิชา"}
+        </button>
+      </section>
+
+      {isFormOpen ? (
+        <CourseForm
+          key={editingId ?? "new-course"}
+          initialCourse={editingCourse}
+          onSave={handleSave}
+          onCancel={handleCancelForm}
+        />
+      ) : null}
+
       <section className="courseToolbar" aria-label="เครื่องมือค้นหารายวิชา">
         <label className="courseSearch">
           <span className="searchIcon" aria-hidden="true">⌕</span>
@@ -116,6 +215,8 @@ export default function CourseExplorer({ courses }: CourseExplorerProps) {
               course={course}
               isFavorite={favoriteIds.includes(course.id)}
               onToggleFavorite={handleToggleFavorite}
+              onEdit={handleStartEdit}
+              onDelete={handleDelete}
             />
           ))}
         </section>

@@ -27,6 +27,12 @@ export default function Navbar() {
         </li>
 
         <li>
+          <Link className="navLink" href="/games">
+            Games
+          </Link>
+        </li>
+
+        <li>
           <Link className="navLink" href="/about">
             เกี่ยวกับ
           </Link>
